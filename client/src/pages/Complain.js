@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 
 import Navbar from '../components/Navbar'
-import Contact from '../components/complain/Contact'
-import Chat from '../components/complain/Chat'
+import Contact from '../components/Form Complain/Contact'
+import Chat from '../components/Form Complain/Chat'
 
 export default function Complain() {
     const [contact, setContact] = useState(null)

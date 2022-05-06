@@ -1,43 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router';
-import { useMutation } from 'react-query';
-
+import { useParams, useNavigate } from 'react-router';
+import { useQuery, useMutation } from 'react-query';
 
 import NavbarAdmin from '../components/NavbarAdmin';
+import CheckBox from '../components/form check/CheckBox';
 
+import dataProduct from '../Dummy/product';
 
+//Get API
 import { API } from '../config/api';
 
-export default function AddProductAdmin() {
-  console.clear();
-  const title = 'Productadmin';
+export default function UpdateProductAdmin() {
+  const title = 'Product admin';
   document.title = 'DumbMerch | ' + title;
 
   let navigate = useNavigate();
+  const { id } = useParams();
 
   const [categories, setCategories] = useState([]); //Store all category data
   const [categoryId, setCategoryId] = useState([]); //Save the selected category id
   const [preview, setPreview] = useState(null); //For image preview
+  const [product, setProduct] = useState({}); //Store product data
   const [form, setForm] = useState({
     image: '',
     name: '',
     desc: '',
     price: '',
     qty: '',
-   
   }); //Store product data
 
-  // Fetching category data
-  const getCategories = async () => {
-    try {
-      const response = await API.get('/categories');
-      setCategories(response.data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    // Fetching detail product data by id from database
+let { data: products, refetch } = useQuery('productCache', async () => {
+  const response = await API.get('/product/' + id);
+  return response.data.data;
+});
 
+// Fetching category data
+let { data: categoriesData, refetch: refetchCategories } = useQuery(
+  'categoriesCache',
+  async () => {
+    const response = await API.get('/categories');
+    return response.data.data;
+  }
+);
+
+useEffect(() => {
+  if (products) {
+    setPreview(products.image);
+    setForm({
+      ...form,
+      name: products.name,
+      desc: products.desc,
+      price: products.price,
+      qty: products.qty,
+    });
+    setProduct(products);
+  }
+
+  if (categoriesData) {
+    setCategories(categoriesData);
+  }
+}, [products]);
   // For handle if category selected
   const handleChangeCategoryId = (e) => {
     const id = e.target.value;
@@ -73,29 +97,33 @@ export default function AddProductAdmin() {
   const handleSubmit = useMutation(async (e) => {
     try {
       e.preventDefault();
-
+  
       // Configuration
       const config = {
         headers: {
           'Content-type': 'multipart/form-data',
         },
       };
-
+  
       // Store data with FormData as object
       const formData = new FormData();
-      formData.set('image', form.image[0], form.image[0].name);
+      if (form.image) {
+        formData.set('image', form?.image[0], form?.image[0]?.name);
+      }
       formData.set('name', form.name);
       formData.set('desc', form.desc);
       formData.set('price', form.price);
       formData.set('qty', form.qty);
       formData.set('categoryId', categoryId);
-
-      console.log(form);
-
+  
       // Insert product data
-      const response = await API.post('/product', formData, config);
-      console.log(response);
-
+      const response = await API.patch(
+        '/product/' + product.id,
+        formData,
+        config
+      );
+      console.log(response.data);
+  
       navigate('/product-admin');
     } catch (error) {
       console.log(error);
@@ -103,8 +131,12 @@ export default function AddProductAdmin() {
   });
 
   useEffect(() => {
-    getCategories();
-  }, []);
+    const newCategoryId = product?.categories?.map((item) => {
+      return item.id;
+    });
+
+    setCategoryId(newCategoryId);
+  }, [product]);
 
   return (
     <>
@@ -112,10 +144,10 @@ export default function AddProductAdmin() {
       <Container className="py-5">
         <Row>
           <Col xs="12">
-            <div className="text-header-category mb-4">Add Product</div>
+            <div className="text-header-category mb-4">Update Product</div>
           </Col>
           <Col xs="12">
-            <form onSubmit={(e) => handleSubmit.mutate(e)}>
+          <form onSubmit={(e) => handleSubmit.mutate(e)}>
               {preview && (
                 <div>
                   <img
@@ -125,7 +157,7 @@ export default function AddProductAdmin() {
                       maxHeight: '150px',
                       objectFit: 'cover',
                     }}
-                    alt={preview}
+                    alt="preview"
                   />
                 </div>
               )}
@@ -144,12 +176,14 @@ export default function AddProductAdmin() {
                 placeholder="Product Name"
                 name="name"
                 onChange={handleChange}
+                value={form?.name}
                 className="input-edit-category mt-4"
               />
               <textarea
                 placeholder="Product Desc"
                 name="desc"
                 onChange={handleChange}
+                value={form?.desc}
                 className="input-edit-category mt-4"
                 style={{ height: '130px' }}
               ></textarea>
@@ -158,6 +192,7 @@ export default function AddProductAdmin() {
                 placeholder="Price (Rp.)"
                 name="price"
                 onChange={handleChange}
+                value={form?.price}
                 className="input-edit-category mt-4"
               />
               <input
@@ -165,6 +200,7 @@ export default function AddProductAdmin() {
                 placeholder="Stock"
                 name="qty"
                 onChange={handleChange}
+                value={form?.qty}
                 className="input-edit-category mt-4"
               />
 
@@ -175,21 +211,22 @@ export default function AddProductAdmin() {
                 >
                   Category
                 </div>
-                {categories.map((item, index) => (
-                  <label className="checkbox-inline me-4" key={index}>
-                    <input
-                      type="checkbox"
-                      value={item.id}
-                      onClick={handleChangeCategoryId}
-                    />{' '}
-                    {item.name}
-                  </label>
-                ))}
+                {product &&
+                  categories?.map((item, index) => (
+                    <label key={index} className="checkbox-inline me-4">
+                      <CheckBox
+                        categoryId={categoryId}
+                        value={item?.id}
+                        handleChangeCategoryId={handleChangeCategoryId}
+                      />
+                      <span className="ms-2">{item?.name}</span>
+                    </label>
+                  ))}
               </div>
 
               <div className="d-grid gap-2 mt-4">
                 <Button type="submit" variant="success" size="md">
-                  Add
+                  Save
                 </Button>
               </div>
             </form>

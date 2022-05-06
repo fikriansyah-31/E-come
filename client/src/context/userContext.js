@@ -1,39 +1,45 @@
-import { createContext, useReducer } from 'react'
+import { createContext, useReducer } from 'react';
 
 export const UserContext = createContext();
 
 const initialState = {
-    isLogin: false,
-    user: {}
-}
+  isLogin: false,
+  user: {},
+};
 
 const reducer = (state, action) => {
-    const { type, payload } = action
+  const { type, payload } = action;
 
-    switch (type) {
-        case "LOGIN_SUCCESS":
-            return {
-                isLogin: true,
-                user: payload
-            }
-        case "LOGOUT":
-            return {
-                isLogin: false,
-                user: {}
-            }
-        default:
-            throw new Error();
-    }
-}
+  switch (type) {
+    // add case "USER_SUCCESS" here
+    case 'USER_SUCCESS':
+    case 'LOGIN_SUCCESS':
+        // Set localstorange item with key "token" here..
+        localStorage.setItem("token", payload.token)
+      return {
+        isLogin: true,
+        user: payload,
+      };
+        // add case "AUTH_ERROR" here ..
+    case 'AUTH_ERROR':
+    case 'LOGOUT':
+      // Remove localstorage item with key "token" here ...
+      localStorage.removeItem("token")
+      return {
+        isLogin: false,
+        user: {},
+      };
+    default:
+      throw new Error();
+  }
+};
 
 export const UserContextProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-    const [state, dispatch] = useReducer(reducer, initialState)
-
-    return (
-        <UserContext.Provider value={[state, dispatch]}>
-            {children}
-        </UserContext.Provider>
-    )
-
-}
+  return (
+    <UserContext.Provider value={[state, dispatch]}>
+      {children}
+    </UserContext.Provider>
+  );
+};

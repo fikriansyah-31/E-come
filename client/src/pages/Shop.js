@@ -9,7 +9,7 @@ import { Container, Row, Col } from 'react-bootstrap'
 import Img1 from '../../src/assets/product1.png'
 import Img2 from '../../src/assets/product2.png'
 
-import dataProduct from "../fakeData/product";
+import dataProduct from "../Dummy/product";
 
 import convertRupiah from 'rupiah-format'
 

@@ -4,7 +4,7 @@ import { useParams, useHistory } from 'react-router'
 
 import NavbarAdmin from '../components/NavbarAdmin'
 
-import dataCategory from '../fakeData/category'
+import dataCategory from '../Dummy/category'
 
 export default function EditCategoryAdmin() {
     let history = useHistory()

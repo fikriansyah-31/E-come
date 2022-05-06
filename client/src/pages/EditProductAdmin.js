@@ -4,7 +4,7 @@ import { useParams, useHistory } from 'react-router'
 
 import NavbarAdmin from '../components/NavbarAdmin'
 
-import dataProduct from '../fakeData/product'
+import dataProduct from '../Dummy/product'
 
 export default function EditProductAdmin() {
     let history = useHistory()
