@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Footer, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 import { UserContext } from "../context/userContext";
@@ -9,6 +9,9 @@ import ImgDumbMerch from "../assets/DumbMerch.png";
 import Login from "../components/Form auth/Login";
 import Register from "../components/Form auth/Register";
 
+import React from 'react';
+// import { MDBFooter } from 'mdb-react-ui-kit';
+// import {MDBFooter} from 'md'
 export default function Auth() {
   let navigate = useNavigate();
 
@@ -53,7 +56,16 @@ export default function Auth() {
           </Col>
           <Col md="6">{isRegister ? <Register /> : <Login />}</Col>
         </Row>
-      </Container>
+        <Card className='bg-dark text-center text-white'>
+        <div className='text-center p-3' style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
+          &copy; {new Date().getFullYear()} Copyright:{' '}
+          <a className='text-light' href='https://Dumbmerch.com/'>
+            DumbMerch.com
+          </a>
+        </div>
+      </Card>
+        </Container> 
+  
     </div>
   );
 }

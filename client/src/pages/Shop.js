@@ -4,7 +4,9 @@ import Masonry from 'react-masonry-css'
 import { UserContext } from '../context/userContext'
 
 import Navbar from "../components/Navbar";
-import { Container, Row, Col } from 'react-bootstrap'
+import { Container, Row, Col,} from 'react-bootstrap'
+
+import { Carousel } from 'react-carousel-minimal';
 
 import Img1 from '../../src/assets/product1.png'
 import Img2 from '../../src/assets/product2.png'
@@ -52,6 +54,8 @@ export default function Shop() {
         500: 2
     };
 
+    
+
     const title = "Shop"
     document.title = 'DumbMerch | ' + title
 
@@ -73,6 +77,7 @@ export default function Shop() {
                     </Masonry>
                 </Row>
             </Container>
+            
         </div>
     )
 }

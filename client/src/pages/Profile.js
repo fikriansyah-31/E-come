@@ -10,13 +10,19 @@ import imgDumbMerch from '../assets/DumbMerch.png';
 
 import { UserContext } from '../context/userContext';
 
-import imgBlank from '../assets/blank-profile.png';
+import imgBlank from '../assets/download.jpg';
+//import API
+import { API } from "../config/api";
 
 export default function Profile() {
   const title = 'Profile';
   document.title = 'DumbMerch | ' + title;
 
+  let api = API();
+
   const [state] = useContext(UserContext);
+
+  
 
   let transactions = [];
   let profile = {};
