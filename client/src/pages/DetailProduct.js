@@ -1,18 +1,105 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col } from 'react-bootstrap';
-import convertRupiah from 'rupiah-format';
-import { useQuery, useMutation } from 'react-query';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Container, Row, Col } from "react-bootstrap";
+import convertRupiah from "rupiah-format";
 
-import Navbar from '../components/Navbar';
+import Navbar from "../components/Navbar";
 
-import dataProduct from '../Dummy/product';
+import dataProduct from "../Dummy/product";
+
+// Import useQuery and useMutation
+import { useQuery, useMutation } from "react-query";
+
+// API config
+import { API } from "../config/api";
 
 export default function DetailProduct() {
-  let navigate = useNavigate();
+  let history = useNavigate();
   let { id } = useParams();
 
-  let product = {};
+
+  // Fetching product data from database
+  let { data: product } = useQuery('productCache', async () => {
+    const response = await API.get('/product/' + id);
+    return response.data.data;
+  });
+
+  // Create config Snap payment page with useEffect here ...
+  useEffect(() => {
+    //change this to the script source you want to load, for example this is snap.js sandbox env
+    const midtransScriptUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
+    //change this according to your client-key
+    const myMidtransClientKey = "SB-Mid-client-f60LPtnAXmUq8Hrt";
+  
+    let scriptTag = document.createElement("script");
+    scriptTag.src = midtransScriptUrl;
+    // optional if you want to set script attribute
+    // for example snap.js have data-client-key attribute
+    scriptTag.setAttribute("data-client-key", myMidtransClientKey);
+  
+    document.body.appendChild(scriptTag);
+    return () => {
+      document.body.removeChild(scriptTag);
+    };
+  }, []);
+
+  const handleBuy = useMutation(async () => {
+    try {
+      // Get data from product
+
+      const data = {
+        idProduct: product?.id,
+        idSeller: product?.user.id,
+        price: product?.price,
+      };
+
+      console.log(data);
+      // Data body
+      const body = JSON.stringify(data);
+
+      // Configuration
+      const config = {
+        method: "POST",
+        headers: {
+          Authorization: "Basic " + localStorage.token,
+          "Content-type": "application/json",
+        },
+        body,
+      };
+
+      // Insert transaction data
+      const response = await API.post('/transaction', body, config);
+      console.log(response.data.payment.token);
+      // Create variabel for store token payment from response here ...
+      const token = response.data.payment.token;
+      console.log(token);
+      window.snap.pay(token, {
+        onSuccess: function (result) {
+          /* You may add your own implementation here */
+          console.log(result);
+          history.push("/profile");
+        },
+        onPending: function (result) {
+          /* You may add your own implementation here */
+          console.log(result);
+          history.push("/profile");
+        },
+        onError: function (result) {
+          /* You may add your own implementation here */
+          console.log(result);
+        },
+        onClose: function () {
+          /* You may add your own implementation here */
+          alert("you closed the popup without finishing the payment");
+        },
+      });
+
+
+      // Init Snap for display payment page with token here ...
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
   return (
     <div>
@@ -33,7 +120,12 @@ export default function DetailProduct() {
               {convertRupiah.convert(product?.price)}
             </div>
             <div className="d-grid gap-2 mt-5">
-              <button className="btn btn-buy">Buy</button>
+              <button
+                onClick={() => handleBuy.mutate()}
+                className="btn btn-buy"
+              >
+                Buy
+              </button>
             </div>
           </Col>
         </Row>

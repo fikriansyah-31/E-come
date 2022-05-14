@@ -1,5 +1,5 @@
 // import model
-const { user } = require("../../models");
+const { user, profile } = require("../../models");
 
 // import joi validation
 const Joi = require("joi");

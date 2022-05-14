@@ -23,12 +23,12 @@ const client = new QueryClient()
 ReactDOM.render(
   <React.StrictMode>
     <UserContextProvider>
-      {/* Add opening QueryClientProvider component and client as props */}
+    
       <QueryClientProvider client={client}>
         <Router>
           <App />
         </Router>
-      {/* Add closing QueryClientProvider component */}
+ 
       </QueryClientProvider>
     </UserContextProvider>
   </React.StrictMode>,

@@ -1,32 +1,42 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import dateFormat from 'dateformat';
 import convertRupiah from 'rupiah-format';
 import { useQuery } from 'react-query';
 
 import Navbar from '../components/Navbar';
-
+import { useNavigate } from 'react-router-dom';
 import imgDumbMerch from '../assets/DumbMerch.png';
 
 import { UserContext } from '../context/userContext';
 
-import imgBlank from '../assets/download.jpg';
-//import API
-import { API } from "../config/api";
+import imgBlank from '../assets/blank-profile.png';
+
+import { API } from '../config/api';
 
 export default function Profile() {
   const title = 'Profile';
   document.title = 'DumbMerch | ' + title;
-
-  let api = API();
+  const navigate = useNavigate();
 
   const [state] = useContext(UserContext);
 
-  
+  // const [transactions, setTransactions] = useState([]);
 
-  let transactions = [];
-  let profile = {};
+  let { data: profile } = useQuery('profileCache', async () => {
+    const response = await API.get('/profile');
+    return response.data.data;
+  });
 
+  let { data: transactions } = useQuery('transactionsCache', async () => {
+    const response = await API.get('/transactions');
+    return response.data.data;
+  });
+
+  const handleEditProfile = (id) => {
+    navigate(`/update-profile/${id}`);
+  };
+  console.log(state.user);
   return (
     <>
       <Navbar title={title} />
@@ -36,11 +46,7 @@ export default function Profile() {
             <div className="text-header-product mb-4">My Profile</div>
             <Row>
               <Col md="6">
-                <img
-                  src={profile?.image ? profile.image : imgBlank}
-                  className="img-fluid rounded"
-                  alt="avatar"
-                />
+                <img src={profile?.image ? profile.image : imgBlank} className="img-fluid rounded" alt="avatar" />
               </Col>
               <Col md="6">
                 <div className="profile-header">Name</div>
@@ -50,19 +56,17 @@ export default function Profile() {
                 <div className="profile-content">{state.user.email}</div>
 
                 <div className="profile-header">Phone</div>
-                <div className="profile-content">
-                  {profile?.phone ? profile?.phone : '-'}
-                </div>
+                <div className="profile-content">{profile?.phone ? profile?.phone : '-'}</div>
 
                 <div className="profile-header">Gender</div>
-                <div className="profile-content">
-                  {profile?.gender ? profile?.gender : '-'}
-                </div>
+                <div className="profile-content">{profile?.gender ? profile?.gender : '-'}</div>
 
                 <div className="profile-header">Address</div>
-                <div className="profile-content">
-                  {profile?.address ? profile?.address : '-'}
-                </div>
+                <div className="profile-content">{profile?.address ? profile?.address : '-'}</div>
+
+                <Button onClick={() => handleEditProfile(state.user.id)} className="fw-normal px-4 mb-4" variant="danger">
+                  Edit Profile
+                </Button>
               </Col>
             </Row>
           </Col>
@@ -71,11 +75,7 @@ export default function Profile() {
             {transactions?.length !== 0 ? (
               <>
                 {transactions?.map((item, index) => (
-                  <div
-                    key={index}
-                    style={{ background: '#303030' }}
-                    className="p-2 mb-1"
-                  >
+                  <div key={index} style={{ background: '#303030' }} className="p-2 mb-1">
                     <Container fluid className="px-1">
                       <Row>
                         <Col xs="3">
@@ -134,12 +134,8 @@ export default function Profile() {
                           </div>
                         </Col>
                         <Col xs="3">
-                          <img
-                            src={imgDumbMerch}
-                            alt="img"
-                            className="img-fluid"
-                            style={{ maxHeight: '120px' }}
-                          />
+                          <div className={`status-transaction-${item.status} h-100 rounded d-flex justify-content-center align-items-center fw-bold`}>{item.status}</div>
+                          {/* <img src={imgDumbMerch} alt="img" className="img-fluid" style={{ maxHeight: '120px' }} /> */}
                         </Col>
                       </Row>
                     </Container>

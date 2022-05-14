@@ -1,16 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
-import { useParams, useNavigate } from 'react-router';
-import { useQuery, useMutation } from 'react-query';
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { useParams } from "react-router";
 
-import NavbarAdmin from '../components/NavbarAdmin';
+import NavbarAdmin from "../components/NavbarAdmin";
+
+import dataCategory from "../Dummy/category";
+
+// Import useQuery and useMutation
+import { useQuery, useMutation } from "react-query";
+
+// Get API config
+import { API } from "../config/api";
 
 export default function UpdateCategoryAdmin() {
-  const title = 'Category admin';
-  document.title = 'DumbMerch | ' + title;
+  const title = "Category admin";
+  document.title = "DumbMerch | " + title;
 
-  let navigate = useNavigate();
+  // let history = useHistory();
+  let api = API();
   const { id } = useParams();
+
+  const [category, setCategory] = useState({ name: "" });
+
+  // Fetching category data by id from database
+  let { refetch } = useQuery("categoryCache", async () => {
+    const response = await api.get("/category/" + id);
+    setCategory({ name: response.data.name });
+  });
 
   const handleChange = (e) => {
     setCategory({
@@ -18,6 +34,31 @@ export default function UpdateCategoryAdmin() {
       name: e.target.value,
     });
   };
+
+  const handleSubmit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
+
+      // Data body
+      const body = JSON.stringify(category);
+
+      // Configuration
+      const config = {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body,
+      };
+
+      // Insert category data
+      const response = await api.patch("/category/" + id, config);
+
+      // history.push("/category-admin");
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
   return (
     <>
@@ -28,7 +69,7 @@ export default function UpdateCategoryAdmin() {
             <div className="text-header-category mb-4">Edit Category</div>
           </Col>
           <Col xs="12">
-            <form>
+            <form onSubmit={(e) => handleSubmit.mutate(e)}>
               <input
                 onChange={handleChange}
                 value={category.name}

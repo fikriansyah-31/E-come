@@ -1,7 +1,10 @@
 import { useContext, useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
 import Masonry from 'react-masonry-css';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col,} from 'react-bootstrap';
+// import {Rating} from 'mdb-react-ui-kit'
+
+// import { MDBContainer, MDBRating } from 'mdbreact';
 
 import { UserContext } from '../context/userContext';
 
@@ -10,6 +13,8 @@ import { Carousel } from 'react-carousel-minimal';
 // Import UseQuery
 
 import { useQuery } from 'react-query';
+
+// import Rating from '../components/Product card/Rating';
 
 import Navbar from '../components/Navbar';
 import ProductCard from '../components/Product card/ProductCard';
@@ -38,7 +43,26 @@ let { data: products } = useQuery('productsCache', async () => {
     700: 3,
     500: 2,
   };
-
+  // const RatingPage = () => {
+  // const [basic] = useState([
+  //   {
+  //     tooltip: 'Very Bad'
+  //   },
+  //   {
+  //     tooltip: 'Poor'
+  //   },
+  //   {
+  //     tooltip: 'Ok',
+  //     choosed: true
+  //   },
+  //   {
+  //     tooltip: 'Good'
+  //   },
+  //   {
+  //     tooltip: 'Excellent'
+  //   }
+  // ]);
+  // export default RatingPage;
   // const data = [
   //   {
   //     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/GoldenGateBridge-001.jpg/1200px-GoldenGateBridge-001.jpg",
@@ -106,6 +130,7 @@ let { data: products } = useQuery('productsCache', async () => {
       {products?.map((item) => (
         <ProductCard item={item} key={item.id} />
         ))}
+                       
         </Masonry>
         
           ) : (
@@ -117,6 +142,7 @@ let { data: products } = useQuery('productsCache', async () => {
                   style={{ width: '40%' }}
                   alt="empty"
                 />
+                
                 <div className="mt-3">No data product</div>
               </div>
             </Col>
